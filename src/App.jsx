@@ -7,11 +7,27 @@ import Modal from "./components/Modal.jsx";
 import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 
+// Below 3 lines of code does not require use effect as
+// it runs synchronously, i.e., instantly and does not take time to
+// finish during which some app component execution would finish.
+// We can even move this code to the top of the file as this code
+// needs to run only once and not on every component rendering.
+
+const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+const storedPlaces = storedIds.map((id) =>
+  AVAILABLE_PLACES.find((place) => place.id === id)
+);
+
 function App() {
   const modal = useRef();
   const selectedPlace = useRef();
-  const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
   const [availablePlaces, setAvailablePlaces] = useState([]);
+
+  // Below code require use effect as it takes time to finish.
+  // During this time, the app component execution would finish.
+  // The below code runs asynchronously. as the callback would
+  // finish sometime in the future and not instantly.
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -41,6 +57,18 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    // the below side effect does not require use effect as
+    // it is not related to the component rendering and
+    // it is not related to the state of the component.
+    // Even if it updated the state, it would not cause an infinite loop
+    // as this code is only executed on user interaction and not on component rendering.
+
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    if (!storedIds.includes(id)) {
+      storedIds.push(id);
+      localStorage.setItem("selectedPlaces", JSON.stringify(storedIds));
+    }
   }
 
   function handleRemovePlace() {
@@ -48,6 +76,10 @@ function App() {
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
     modal.current.close();
+
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    const updatedIds = storedIds.filter((id) => id !== selectedPlace.current);
+    localStorage.setItem("selectedPlaces", JSON.stringify(updatedIds));
   }
 
   return (
