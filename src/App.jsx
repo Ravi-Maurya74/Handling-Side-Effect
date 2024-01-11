@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { sortPlacesByDistance } from "./loc.js";
 
 import Places from "./components/Places.jsx";
@@ -71,7 +71,15 @@ function App() {
     }
   }
 
-  function handleRemovePlace() {
+  // below code require use callback as it is used as a dependency
+  // in the dependency array of the use effect. If we don't use
+  // use callback, then the reference of the function would change
+  // on every component rendering and the use effect would run
+  // on every component rendering. To prevent this, we use use callback
+  // to ensure that the reference of the function does not change.
+  // It also takes dependencies as the function uses the state and prop.
+
+  const handleRemovePlace = useCallback(function handleRemovePlace() {
     setPickedPlaces((prevPickedPlaces) =>
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
@@ -80,7 +88,7 @@ function App() {
     const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
     const updatedIds = storedIds.filter((id) => id !== selectedPlace.current);
     localStorage.setItem("selectedPlaces", JSON.stringify(updatedIds));
-  }
+  }, []);
 
   return (
     <>
@@ -88,7 +96,6 @@ function App() {
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
           onConfirm={handleRemovePlace}
-
         />
       </Modal>
 
