@@ -1,4 +1,29 @@
+import React, { useEffect } from "react";
+
 export default function DeleteConfirmation({ onConfirm, onCancel }) {
+  useEffect(() => {
+    console.log("Timer Set");
+    const timer = setTimeout(() => {
+      onConfirm();
+    }, 3000);
+
+    // The return statement of the useEffect callback function is used to
+    // clean up the side effects of the useEffect callback function.
+    // Is is executed when the component is unmounted or when the dependency
+    // array of the useEffect changes, the clean up is run before running
+    // the useEffect callback function again.
+
+    // Here we need to clear the timer when the component is unmounted, as 
+    // otherwise the timer will continue to run even after the component is
+    // unmounted when we click on no button. This is because the timer is
+    // still running. So our image will be deleted after clicking on no button.
+
+    return () => {
+      console.log("Timer Cleared");
+      clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <div id="delete-confirmation">
       <h2>Are you sure?</h2>
