@@ -1,8 +1,5 @@
-Certainly! Here's a template for a general README file for a React project:
 
----
-
-# Project Name
+# UseEffect
 
 Short description or overview of the project.
 
